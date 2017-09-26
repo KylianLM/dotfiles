@@ -1,12 +1,14 @@
 # Feature detection
 
-is-macos() { [[ "$OSTYPE" =~ ^darwin ]] || return 1; }
+is_macos() {
+[[ "$OSTYPE"=~^darwin ]] || return 1;
+}
 
-is-executable() {
+is_executable() {
   type "$1" > /dev/null 2>&1 || return 1;
 }
 
-is-supported() {
+is_supported() {
   if [ $# -eq 1 ]; then
     if eval "$1" > /dev/null 2>&1; then true; else false; fi
   else
@@ -20,6 +22,29 @@ is-supported() {
 
 # Add to path
 
-prepend-path() {
+prepend_path() {
   [ -d $1 ] && PATH="$1:$PATH"
+}
+
+# Show 256 TERM colors
+
+colors() {
+  local X=$(tput op)
+  local Y=$(printf %$((COLUMNS-6))s)
+  for i in {0..256}; do
+  o=00$i;
+  echo -e ${o:${#o}-3:3} $(tput setaf $i;tput setab $i)${Y// /=}$X;
+  done
+}
+
+# Weather
+
+meteo() {
+  local LOCALE=`echo ${LANG:-en} | cut -c1-2`
+  if [ $# -eq 0 ]; then
+    local LOCATION=`curl -s ipinfo.io/loc`
+  else
+    local LOCATION=$1
+  fi
+  curl -s "$LOCALE.wttr.in/$LOCATION"
 }
